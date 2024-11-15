@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Professional Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">My Professional Profile</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Professional Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">{{ current_user.description }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="experience" class="form-label">Years of Experience</label>
+                            <input type="number" class="form-control" id="experience" name="experience" 
+                                   value="{{ current_user.experience }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="qualification" class="form-label">Qualifications</label>
+                            <input type="text" class="form-control" id="qualification" name="qualification" 
+                                   value="{{ current_user.qualification }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hourly_rate" class="form-label">Hourly Rate ($)</label>
+                            <input type="number" step="0.01" class="form-control" id="hourly_rate" name="hourly_rate" 
+                                   value="{{ current_user.hourly_rate }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Service Area/Location</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   value="{{ current_user.location }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="available_hours" class="form-label">Available Hours</label>
+                            <input type="text" class="form-control" id="available_hours" name="available_hours" 
+                                   value="{{ current_user.available_hours }}"
+                                   placeholder="e.g., Mon-Fri 9AM-5PM">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

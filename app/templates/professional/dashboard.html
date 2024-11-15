@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Professional Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Welcome, {{ current_user.username }}!</h1>
+
+    <!-- Status Card -->
+    <div class="card mb-4 {% if current_user.is_verified %}bg-success{% else %}bg-warning{% endif %} text-white">
+        <div class="card-body">
+            <h5 class="card-title">Account Status</h5>
+            <p class="card-text">
+                {% if current_user.is_verified %}
+                    Your account is verified and active
+                {% else %}
+                    Your account is pending verification by admin
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Rating</h5>
+                    <h2 class="card-text">{{ "%.1f"|format(current_user.rating) }}</h2>
+                    <p class="card-text"><small>Total Ratings: {{ current_user.total_ratings }}</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Requests</h5>
+                    <h2 class="card-text">{{ active_requests|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Earnings</h5>
+                    <h2 class="card-text">${{ "%.2f"|format(current_user.total_earnings) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Requests</h5>
+                    <h2 class="card-text">{{ pending_requests }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Service Requests -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0">Active Service Requests</h3>
+        </div>
+        <div class="card-body">
+            {% if active_requests %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Date Requested</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in active_requests %}
+                        <tr>
+                            <td>{{ request.customer.username }}</td>
+                            <td>{{ request.service.name }}</td>
+                            <td>{{ request.date_of_request.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <form action="{{ url_for('professional.complete_request', request_id=request.id) }}" 
+                                      method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Mark Complete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No active service requests</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Service Requests -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0">New Service Requests</h3>
+        </div>
+        <div class="card-body">
+            {% if recent_requests %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in recent_requests %}
+                        <tr>
+                            <td>{{ request.customer.username }}</td>
+                            <td>{{ request.service.name }}</td>
+                            <td>{{ request.date_of_request.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <form action="{{ url_for('professional.accept_request', request_id=request.id) }}" 
+                                      method="POST">
+                                    <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No new service requests</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Completed Requests -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Recent Completed Services</h3>
+        </div>
+        <div class="card-body">
+            {% if completed_requests %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Completion Date</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in completed_requests %}
+                        <tr>
+                            <td>{{ request.customer.username }}</td>
+                            <td>{{ request.service.name }}</td>
+                            <td>{{ request.date_of_completion.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if request.rating %}
+                                    <span class="badge bg-success">{{ request.rating }}/5</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Not Rated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No completed service requests</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

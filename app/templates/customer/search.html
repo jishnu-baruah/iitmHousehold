@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Search Services{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Search Services</h1>
+
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    {{ form.query.label(class="form-label") }}
+                    {{ form.query(class="form-control", value=search_params.query) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.location.label(class="form-label") }}
+                    {{ form.location(class="form-control", value=search_params.location) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.pincode.label(class="form-label") }}
+                    {{ form.pincode(class="form-control", value=search_params.pincode) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.service_type.label(class="form-label") }}
+                    {{ form.service_type(class="form-select") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.price_range.label(class="form-label") }}
+                    {{ form.price_range(class="form-select") }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if service_data %}
+    <div class="row">
+        {% for item in service_data %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.service.name }}</h5>
+                    <p class="card-text">{{ item.service.description }}</p>
+                    <div class="mb-3">
+                        <strong>Base Price:</strong> ${{ "%.2f"|format(item.service.base_price) }}<br>
+                        <strong>Duration:</strong> {{ item.service.time_required }} minutes<br>
+                        <strong>Available Professionals:</strong> {{ item.professional_count }}
+                    </div>
+                    {% if item.professional_count > 0 %}
+                    <a href="{{ url_for('customer.request_service', service_id=item.service.id) }}" 
+                       class="btn btn-primary">Request Service</a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>No Professionals Available</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No services found matching your criteria.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Live Search Suggestions -->
+<script>
+const searchInput = document.querySelector('#query');
+let timeoutId;
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+        const query = this.value;
+        if (query.length >= 2) {
+            fetch(`/customer/search/suggestions?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Implement suggestions dropdown here
+                    console.log(data);
+                });
+        }
+    }, 300);
+});
+</script>
+{% endblock %}

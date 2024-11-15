@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- User Management Section -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4">User Management</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for user in users %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ user.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ user.email }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ 'bg-green-100 text-green-800' if user.is_active else 'bg-red-100 text-red-800' }}">
+                                    {{ 'Active' if user.is_active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button class="toggle-user-status px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white {{ 'bg-red-600 hover:bg-red-700' if user.is_active else 'bg-green-600 hover:bg-green-700' }}" data-user-id="{{ user.id }}">
+                                    {{ 'Block' if user.is_active else 'Unblock' }}
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Professional Approval Section -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4">Pending Professional Approvals</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for professional in pending_professionals %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ professional.user.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ professional.user.email }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button class="approve-professional px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" data-professional-id="{{ professional.id }}">
+                                    Approve
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // User status toggle
+    document.querySelectorAll('.toggle-user-status').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            fetch(`/admin/toggle_user_status/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.textContent = data.is_active ? 'Block' : 'Unblock';
+                    this.classList.toggle('bg-red-600');
+                    this.classList.toggle('hover:bg-red-700');
+                    this.classList.toggle('bg-green-600');
+                    this.classList.toggle('hover:bg-green-700');
+                    const statusSpan = this.closest('tr').querySelector('td:nth-child(3) span');
+                    statusSpan.textContent = data.is_active ? 'Active' : 'Inactive';
+                    statusSpan.classList.toggle('bg-green-100');
+                    statusSpan.classList.toggle('text-green-800');
+                    statusSpan.classList.toggle('bg-red-100');
+                    statusSpan.classList.toggle('text-red-800');
+                } else {
+                    alert('Failed to update user status');
+                }
+            });
+        });
+    });
+
+    // Professional approval
+    document.querySelectorAll('.approve-professional').forEach(button => {
+        button.addEventListener('click', function() {
+            const professionalId = this.dataset.professionalId;
+            fetch(`/admin/approve_professional/${professionalId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.closest('tr').remove();
+                } else {
+                    alert('Failed to approve professional');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

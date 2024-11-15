@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Process Payment{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Payment Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Service Details:</h5>
+                        <p>
+                            <strong>Service:</strong> {{ service_request.service.name }}<br>
+                            <strong>Professional:</strong> {{ service_request.professional.username }}<br>
+                            <strong>Amount:</strong> ${{ "%.2f"|format(service_request.service.base_price) }}
+                        </p>
+                    </div>
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        {% if form.payment_method %}
+                        <div class="mb-3">
+                            {{ form.payment_method.label(class="form-label") }}
+                            {{ form.payment_method(class="form-select") }}
+                        </div>
+                        
+                        <div id="card-details">
+                            <div class="mb-3">
+                                {{ form.card_number.label(class="form-label") }}
+                                {{ form.card_number(class="form-control") }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.card_holder.label(class="form-label") }}
+                                {{ form.card_holder(class="form-control") }}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form.expiry_month.label(class="form-label") }}
+                                    {{ form.expiry_month(class="form-select") }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.expiry_year.label(class="form-label") }}
+                                    {{ form.expiry_year(class="form-select") }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.cvv.label(class="form-label") }}
+                                    {{ form.cvv(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="mb-3">
+                            {{ form.upi_id.label(class="form-label") }}
+                            {{ form.upi_id(class="form-control") }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethod = document.getElementById('payment_method');
+    const cardDetails = document.getElementById('card-details');
+    
+    if (paymentMethod && cardDetails) {
+        paymentMethod.addEventListener('change', function() {
+            if (this.value === 'credit_card' || this.value === 'debit_card') {
+                cardDetails.style.display = 'block';
+            } else {
+                cardDetails.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

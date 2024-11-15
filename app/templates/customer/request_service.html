@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Request Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Request Service: {{ service.name }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Service Details:</h5>
+                        <p>{{ service.description }}</p>
+                        <p>
+                            <strong>Base Price:</strong> ${{ "%.2f"|format(service.base_price) }}<br>
+                            <strong>Estimated Time:</strong> {{ service.time_required }} minutes
+                        </p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="remarks" class="form-label">Additional Remarks</label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="3" 
+                                      placeholder="Any specific requirements or details..."></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

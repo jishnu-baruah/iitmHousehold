@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Household Services</h1>
+    <p class="lead">Find professional services for your home maintenance needs.</p>
+    <hr class="my-4">
+    {% if current_user.is_authenticated %}
+        <p>Welcome back, {{ current_user.username }}!</p>
+        {% if current_user.role == "customer" %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('customer.dashboard') }}" role="button">View Available Services</a>
+        {% elif current_user.role == "professional" %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('professional.dashboard') }}" role="button">View Service Requests</a>
+        {% elif current_user.role == "admin" %}
+            <a class="btn btn-primary btn-lg" href="{{ url_for('admin.dashboard') }}" role="button">Admin Dashboard</a>
+        {% endif %}
+    {% else %}
+        <p>Join our platform to connect with skilled professionals or offer your services.</p>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}" role="button">Register Now</a>
+        <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.login') }}" role="button">Login</a>
+    {% endif %}
+</div>
+
+{% if not current_user.is_authenticated %}
+<div class="row mt-5">
+    <div class="col-md-4">
+        <h3>For Customers</h3>
+        <p>Find reliable professionals for your home maintenance needs.</p>
+        <ul>
+            <li>Browse various services</li>
+            <li>Book appointments</li>
+            <li>Rate and review services</li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <h3>For Professionals</h3>
+        <p>Offer your services and grow your business.</p>
+        <ul>
+            <li>Create your profile</li>
+            <li>Accept service requests</li>
+            <li>Manage your schedule</li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <h3>Why Choose Us?</h3>
+        <ul>
+            <li>Verified professionals</li>
+            <li>Secure payments</li>
+            <li>Quality service guarantee</li>
+            <li>24/7 customer support</li>
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

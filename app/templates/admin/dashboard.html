@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Professionals</h5>
+                    <h2 class="card-text">{{ total_professionals }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Customers</h5>
+                    <h2 class="card-text">{{ total_customers }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Services</h5>
+                    <h2 class="card-text">{{ total_services }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Approvals</h5>
+                    <h2 class="card-text">{{ pending_approvals }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professionals Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Professional Service Providers</h3>
+            <a href="{{ url_for('admin.professionals') }}" class="btn btn-primary">View All</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Service Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for professional in professionals %}
+                        <tr>
+                            <td>{{ professional.username }}</td>
+                            <td>{{ professional.service_type }}</td>
+                            <td>
+                                {% if professional.is_verified %}
+                                    <span class="badge bg-success">Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not professional.is_verified %}
+                                <form action="{{ url_for('admin.verify_professional', id=professional.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Verify</button>
+                                </form>
+                                {% endif %}
+                                <form action="{{ url_for('admin.toggle_block_user', id=professional.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        {% if professional.is_active %}Block{% else %}Unblock{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customers Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0">Customers</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td>{{ customer.username }}</td>
+                            <td>{{ customer.email }}</td>
+                            <td>
+                                {% if customer.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Blocked</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="{{ url_for('admin.toggle_block_user', id=customer.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        {% if customer.is_active %}Block{% else %}Unblock{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Service Requests -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Recent Service Requests</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Professional</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in recent_requests %}
+                        <tr>
+                            <td>{{ request.id }}</td>
+                            <td>{{ request.customer.username }}</td>
+                            <td>{{ request.service.name }}</td>
+                            <td>{{ request.professional.username if request.professional else 'Not Assigned' }}</td>
+                            <td>
+                                {% if request.status == 'requested' %}
+                                    <span class="badge bg-warning">Requested</span>
+                                {% elif request.status == 'assigned' %}
+                                    <span class="badge bg-primary">Assigned</span>
+                                {% elif request.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.date_of_request.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

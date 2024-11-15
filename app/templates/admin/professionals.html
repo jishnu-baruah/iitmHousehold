@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Professionals{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Manage Professionals</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Service Type</th>
+                            <th>Experience</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for professional in professionals %}
+                        <tr>
+                            <td>{{ professional.username }}</td>
+                            <td>{{ professional.email }}</td>
+                            <td>{{ professional.service_type }}</td>
+                            <td>{{ professional.experience }} years</td>
+                            <td>
+                                {% if professional.is_verified %}
+                                    <span class="badge bg-success">Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not professional.is_verified %}
+                                <form action="{{ url_for('admin.verify_professional', id=professional.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Verify</button>
+                                </form>
+                                {% endif %}
+                                <form action="{{ url_for('admin.toggle_block_user', id=professional.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        {% if professional.is_active %}Block{% else %}Unblock{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

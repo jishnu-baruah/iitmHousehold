@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Welcome, {{ current_user.username }}!</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Requests</h5>
+                    <h2 class="card-text">{{ active_requests|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Completed Services</h5>
+                    <h2 class="card-text">{{ completed_requests|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Available Services</h5>
+                    <h2 class="card-text">{{ available_services|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Services Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0">Available Services</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for service in available_services %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ service.name }}</h5>
+                            <p class="card-text">{{ service.description }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Base Price: ${{ "%.2f"|format(service.base_price) }}<br>
+                                    Estimated Time: {{ service.time_required }} minutes
+                                </small>
+                            </p>
+                            <a href="{{ url_for('customer.request_service', service_id=service.id) }}" 
+                               class="btn btn-primary">Request Service</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- My Service Requests -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="mb-0">My Service Requests</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Professional</th>
+                            <th>Status</th>
+                            <th>Request Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in service_requests %}
+                        <tr>
+                            <td>{{ request.service.name }}</td>
+                            <td>{{ request.professional.username if request.professional else 'Not Assigned' }}</td>
+                            <td>
+                                {% if request.status == 'requested' %}
+                                    <span class="badge bg-warning">Requested</span>
+                                {% elif request.status == 'assigned' %}
+                                    <span class="badge bg-primary">In Progress</span>
+                                {% elif request.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.date_of_request.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if request.status == 'completed' and not request.rating %}
+                                    <a href="{{ url_for('customer.rate_service', request_id=request.id) }}" 
+                                       class="btn btn-primary btn-sm">Rate Service</a>
+                                {% endif %}
+                                {% if request.status == 'requested' %}
+                                    <form action="{{ url_for('customer.cancel_request', request_id=request.id) }}" 
+                                          method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
